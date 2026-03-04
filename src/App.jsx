@@ -8,19 +8,20 @@ import {
   CreditCard, User, LogOut, Bell, Monitor, Eye, GripVertical,
   ChevronDown, Search, Upload, ArrowRight, Lock
 } from 'lucide-react'
+import MobileApp from './MobileApp'
 
 // ===== DATA =====
-const PROJECTS = [
+export const PROJECTS = [
   { id: 1, name: '逆天修仙路', genre: '修仙', episodes: 12, active: true, icon: '⚔️' },
   { id: 2, name: '末世求生记', genre: '末世', episodes: 5, icon: '🧟' },
   { id: 3, name: '都市逆袭王', genre: '都市', episodes: 3, icon: '🏙️' },
   { id: 4, name: '青云志', genre: '仙侠', episodes: 20, icon: '☁️' },
 ]
-const CONVERSATIONS = [
+export const CONVERSATIONS = [
   { id: 1, name: '优化第8集结尾悬念' },
   { id: 2, name: '新增反派角色设定' },
 ]
-const TEMPLATES = [
+export const TEMPLATES = [
   { icon: '⚔️', name: '修仙逆袭', desc: '废柴逆袭，热血升级，适合短视频连载' },
   { icon: '💕', name: '甜宠恋爱', desc: '霸总/甜宠/误会，高完播率公式' },
   { icon: '🔮', name: '悬疑推理', desc: '层层反转，强悬念钩子，追更率高' },
@@ -28,7 +29,7 @@ const TEMPLATES = [
   { icon: '🧟', name: '末世求生', desc: '生存危机，团队合作，情感羁绊' },
   { icon: '📝', name: '自定义', desc: '从零开始，完全自由创作' },
 ]
-const INITIAL_MESSAGES = [
+export const INITIAL_MESSAGES = [
   {
     id: 1, role: 'user', text: '帮我生成第9集，这集要重点突出主角突破筑基期的逆袭，结尾留一个大悬念', time: '14:32'
   },
@@ -291,7 +292,7 @@ const INITIAL_MESSAGES = [
   },
 ]
 
-const AGENT_REPLIES = [
+export const AGENT_REPLIES = [
   {
     text: '好的，第10集「魔神之约」已生成完毕：',
     card: {
@@ -533,7 +534,7 @@ const TERMS = {
 
 // ===== COMPONENTS =====
 
-function HelpTip({ term }) {
+export function HelpTip({ term }) {
   const [show, setShow] = useState(false)
   const desc = TERMS[term]
   if (!desc) return null
@@ -562,7 +563,7 @@ function HelpTip({ term }) {
   )
 }
 
-function ScoreBadge({ icon, label, score }) {
+export function ScoreBadge({ icon, label, score }) {
   const pass = score >= 7
   return (
     <motion.span
@@ -581,7 +582,7 @@ function ScoreBadge({ icon, label, score }) {
   )
 }
 
-function GradeBadge({ grade }) {
+export function GradeBadge({ grade }) {
   return (
     <motion.span
       initial={{ scale: 0 }}
@@ -1415,7 +1416,7 @@ function MessageCard({ card, onOverlay }) {
   }
 }
 
-function CardBtn({ children, primary, onClick }) {
+export function CardBtn({ children, primary, onClick }) {
   return (
     <motion.button
       whileHover={{ scale: 1.04 }}
@@ -4315,6 +4316,17 @@ function LibraryView({ type, onOverlay }) {
 
 // ===== MAIN APP =====
 export default function App() {
+  // 响应式检测 - 移动端适配
+  const [isMobile, setIsMobile] = useState(window.innerWidth < 768)
+  
+  useEffect(() => {
+    const handler = () => setIsMobile(window.innerWidth < 768)
+    window.addEventListener('resize', handler)
+    return () => window.removeEventListener('resize', handler)
+  }, [])
+
+  if (isMobile) return <MobileApp />
+
   const [view, setView] = useState('landing') // landing | welcome | create-chat | chat | library-*
   const [messages, setMessages] = useState(INITIAL_MESSAGES)
   const [overlay, setOverlay] = useState(null)
