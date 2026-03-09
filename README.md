@@ -1,16 +1,303 @@
-# React + Vite
+# STORYA — AI 短剧生成平台 · 前端交互原型
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+> 🔗 **在线预览：** [https://nicyzyy.github.io/storya-prototype/](https://nicyzyy.github.io/storya-prototype/)
+>
+> 📱 手机直接打开链接，或在桌面浏览器中缩窄窗口至 768px 以下查看移动端版本
 
-Currently, two official plugins are available:
+---
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+## 📖 项目简介
 
-## React Compiler
+STORYA 是一个 **AI 驱动的短剧/网文生成平台**，提供从世界观设定 → 大纲生成 → 逐集创作 → 文字分镜 → 配音 → 视觉生成的全流程闭环。
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+本仓库是 STORYA 的 **前端交互原型（Prototype）**，用于验证产品逻辑、交互流程和视觉风格，**非生产代码**。
 
-## Expanding the ESLint configuration
+### 核心产品理念
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+- **对话式创作**：用户通过自然语言与 AI Agent 对话，驱动整个创作流程
+- **多 Agent 协作**：剧本 Agent、分镜 Agent、一致性 Agent、配音 Agent 等串行协作
+- **Gate 闸门质量控制**：6 维评分体系（Hook / Cliff / Rhythm / Character / Emotion / Consistency）确保内容质量
+- **RAG 上下文增强**：基于世界观和角色设定的检索增强生成，保证剧情一致性
+
+---
+
+## 🛠️ 技术栈
+
+| 技术 | 说明 |
+|------|------|
+| React 19 | UI 框架 |
+| Vite 6 | 构建工具 |
+| Framer Motion | 动画引擎 |
+| Lucide React | 图标库 |
+| CSS Variables | 主题系统（暗色模式预留） |
+| GitHub Pages | 静态部署 |
+
+---
+
+## 🏗️ 项目结构
+
+```
+storya-react/
+├── src/
+│   ├── App.jsx          # PC 端主应用（4600+ 行，含全部 PC 端逻辑）
+│   ├── MobileApp.jsx    # 移动端主应用（870+ 行）
+│   ├── styles.css       # PC 端全局样式
+│   └── mobile.css       # 移动端专属样式（1400+ 行）
+├── .github/
+│   └── workflows/
+│       └── deploy.yml   # GitHub Pages CI/CD
+├── index.html
+├── vite.config.js
+└── package.json
+```
+
+---
+
+## 🖥️ PC 端功能（三栏布局）
+
+### 整体布局
+
+```
+┌──────────┬──────────────────────┬──────────────┐
+│  左侧栏   │      中间对话区        │   右侧面板    │
+│ 项目列表   │   消息流 + 输入框      │  Overlay 编辑 │
+│ 会话列表   │   15+ 种卡片类型       │  分镜/大纲/   │
+│ 快速操作   │   AI 打字动画         │  世界观/LoRA  │
+└──────────┴──────────────────────┴──────────────┘
+```
+
+### 左侧栏
+- **项目列表**：切换不同短剧项目（逆天修仙路、末世求生记、都市逆袭王、青云志）
+- **会话列表**：每个项目下的多轮对话
+- **项目树**：世界观 → 角色 → 大纲 → 剧集 → 分镜的层级树
+- **快速操作**：新建项目、从模板创建
+
+### 中间对话区
+- **消息流**：用户与 AI Agent 的对话，支持 15+ 种富媒体卡片
+- **输入栏**：文本输入 + 附件上传 + 语音输入 + 快捷指令
+- **建议 Chips**：AI 根据上下文推荐的操作建议
+- **AI 打字动画**：逐字输出效果 + 骨架屏加载
+
+### 右侧 Overlay 面板
+- **分镜编辑器**：可视化时间轴 + 分镜详情编辑
+- **大纲编辑器**：剧集大纲的结构化编辑
+- **世界观编辑器**：设定、力量体系、阵营关系
+- **LoRA 管理**：角色 LoRA 模型选择与预览
+- **导出面板**：多格式导出（PDF/Final Draft/TXT）
+- **设置面板**：生成参数调整
+
+---
+
+## 💬 消息卡片类型（15 种）
+
+原型展示了 STORYA 对话流中的全部卡片类型：
+
+| # | 卡片类型 | 组件名 | 说明 |
+|---|---------|--------|------|
+| 1 | 剧集卡片 | `EpisodeCard` | 展示单集生成结果，含标题、字数、质量评分、状态标签 |
+| 2 | 分镜进度 | `StoryboardProgressCard` | 分镜生成整体进度，含已完成/生成中/待处理统计 |
+| 3 | 分镜详情 | `ShotDetailCard` | 单个分镜的详细信息：景别、时长、角色、情绪曲线、音频层 |
+| 4 | 世界观 | `WorldviewCard` | 世界观设定卡片，含力量体系、阵营关系、核心规则 |
+| 5 | 完整大纲 | `FullOutlineCard` | 多集大纲的折叠展示，含每集摘要和悬念线索 |
+| 6 | 单集大纲 | `OutlineCard` | 单集大纲详情，含场景列表和情节节点 |
+| 7 | Gate 评审 | `GateReviewCard` | 6 维质量评分（Hook/Cliff/Rhythm/Character/Emotion/Consistency） |
+| 8 | 一致性检查 | `ConsistencyCard` | 角色/设定一致性校验结果，含冲突检测和修复建议 |
+| 9 | LoRA 更新 | `LoRAUpdateCard` | 角色 LoRA 模型候选 2×2 网格预览 + 选择 |
+| 10 | 配音选择 | `VoiceSelectCard` | TTS 配音方案选择，含音色试听 |
+| 11 | 视频生成 | `VideoGenCard` | AI 视频生成进度和预览 |
+| 12 | 纯文本 | `MessageCard` | 普通文本消息 |
+| 13 | 建议 Chips | `SuggestionChip` | AI 推荐的下一步操作按钮 |
+| 14 | 打字动画 | `TypewriterText` | AI 逐字输出效果 |
+| 15 | 加载态 | `TypingIndicator` | AI 思考中的波点动画 |
+
+---
+
+## 📱 移动端功能
+
+### 布局
+
+```
+┌──────────────────┐
+│     顶部导航栏     │  项目名 + 菜单
+├──────────────────┤
+│                  │
+│     内容区域      │  根据 Tab 切换
+│                  │
+├──────────────────┤
+│  🏠  💬  📁  🎬  👤 │  底部 Tab 导航
+└──────────────────┘
+```
+
+### 5 个 Tab 页面
+
+| Tab | 图标 | 页面 | 说明 |
+|-----|------|------|------|
+| 首页 | 🏠 | 项目列表 | 项目卡片 + 快速创建入口 |
+| 会话 | 💬 | 对话页面 | 聊天界面，全卡片类型适配窄屏 |
+| 项目 | 📁 | 项目树 | 世界观/大纲/角色/剧集的折叠树 |
+| 资源 | 🎬 | 资源库 | 图片/视频/LoRA/音频，网格+列表切换 |
+| 我的 | 👤 | 个人中心 | 会员信息/Credits/设置 |
+
+### 移动端适配策略
+
+- **Bottom Sheet 抽屉**：替代 PC 版 Overlay 面板，从底部滑出
+- **触控友好**：按钮 ≥ 44px，间距加大
+- **分镜卡片**：4 列 → 2 列网格
+- **safe-area 适配**：支持刘海屏和底部横条
+- **骨架屏**：加载态骨架动画
+- **通知气泡**：底部 Tab 显示未读/进度
+
+---
+
+## 🎨 设计规范
+
+### 色彩系统
+
+```css
+--accent:       #0FAA6C   /* 主色 · 翡翠绿 */
+--accent-light: #E8F5EE   /* 浅绿背景 */
+--bg:           #FAFBFC   /* 页面背景 */
+--surface:      #FFFFFF   /* 卡片/面板背景 */
+--border:       #E5E7EB   /* 边框 */
+--text:         #111827   /* 主文本 */
+--text-sec:     #6B7280   /* 次要文本 */
+--text-ter:     #9CA3AF   /* 辅助文本 */
+```
+
+### 字号
+
+| 场景 | PC | 移动端 |
+|------|-----|--------|
+| 正文 | 14px | 15px |
+| 小字 | 12px | 13px |
+| 标题 | 16px | 17px |
+| 大标题 | 24px | 22px |
+
+### 圆角
+
+| 场景 | PC | 移动端 |
+|------|-----|--------|
+| 卡片 | 12px | 16px |
+| 按钮 | 8px | 12px |
+| 输入框 | 24px（圆角胶囊） | 24px |
+
+### 动画
+
+- **卡片入场**：Framer Motion `fadeInUp`，spring 弹簧效果
+- **页面切换**：`AnimatePresence` 淡入淡出
+- **打字效果**：逐字输出，30ms/字
+- **骨架屏**：`pulse` 动画 1.5s 循环
+
+---
+
+## 🔄 交互流程
+
+### 核心创作流程
+
+```
+用户输入需求（自然语言）
+    ↓
+AI 分析意图 → 选择对应 Agent
+    ↓
+┌─────────────────────────────────────┐
+│ 世界观 Agent → 生成/修改世界观设定    │
+│ 大纲 Agent   → 生成/修改剧集大纲     │
+│ 剧本 Agent   → 逐集生成剧本内容      │
+│ 分镜 Agent   → 文字分镜 + 镜头语言   │
+│ 一致性 Agent → 检查角色/设定一致性    │
+│ LoRA Agent   → 选择/微调角色模型     │
+│ 配音 Agent   → TTS 配音方案         │
+│ 视频 Agent   → AI 视频生成          │
+└─────────────────────────────────────┘
+    ↓
+Gate 闸门评审（6 维评分）
+    ↓
+通过 → 输出结果卡片
+未通过 → 反馈修改建议 → 重新生成
+```
+
+### Gate 闸门评分体系
+
+| 维度 | 说明 | 权重 |
+|------|------|------|
+| 🪝 Hook | 开篇钩子吸引力 | 20% |
+| 🧗 Cliff | 悬念/转折力度 | 20% |
+| 🎵 Rhythm | 叙事节奏感 | 15% |
+| 👤 Character | 人物塑造深度 | 15% |
+| 💗 Emotion | 情感共鸣度 | 15% |
+| 🔗 Consistency | 设定一致性 | 15% |
+
+评分等级：S（≥90）/ A（≥80）/ B（≥70）/ C（≥60）/ D（<60）
+
+---
+
+## 🚀 本地运行
+
+```bash
+# 安装依赖
+npm install
+
+# 启动开发服务器
+npm run dev
+
+# 构建
+npm run build
+
+# 预览构建结果
+npm run preview
+```
+
+---
+
+## 📂 分支说明
+
+| 分支 | 说明 |
+|------|------|
+| `main` | 主分支，包含 PC + 移动端完整版本，自动部署到 GitHub Pages |
+| `mobile` | 移动端开发分支（已合并到 main） |
+
+---
+
+## 📋 原型涵盖范围
+
+### ✅ 已实现（交互原型）
+
+- [x] Landing Page（PC + 移动端响应式）
+- [x] 三栏布局（PC）/ 底部 Tab 导航（移动端）
+- [x] 15 种消息卡片类型
+- [x] 项目管理（列表、切换、新建）
+- [x] 项目树（世界观 → 角色 → 大纲 → 剧集 → 分镜）
+- [x] 分镜编辑器（可视化时间轴）
+- [x] Gate 闸门评审面板（6 维评分雷达）
+- [x] LoRA 角色模型选择（2×2 候选网格）
+- [x] 配音方案选择
+- [x] AI 视频生成进度
+- [x] 一致性检查面板
+- [x] 导出功能（多格式）
+- [x] 设置面板（生成参数）
+- [x] AI 打字动画 + 骨架屏
+- [x] 建议 Chips 快捷操作
+
+### 🔲 未实现（需后端支持）
+
+- [ ] 实际 AI 生成（需接入 LLM API）
+- [ ] 用户认证 / 登录注册
+- [ ] 项目持久化存储
+- [ ] 多人协作
+- [ ] 实时生成进度（WebSocket）
+- [ ] Credits 充值与消耗
+- [ ] 视频/音频实际播放
+
+---
+
+## 🔗 相关文档
+
+- **PRD**：Notion 中「PRD｜STORYA-AI短剧生成平台（同步版）」
+- **技术方案**：Notion 中「StoryAI-技术方案 基本版本」
+- **BP**：V6 版本已完成，V7 迭代中
+
+---
+
+## License
+
+Private — 仅供内部评审使用
